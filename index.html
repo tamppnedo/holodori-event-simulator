@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ホロドリ イベントシミュレーター</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>ホロドリ イベント総合計算＆Pt調整シミュレーター</h1>
+
+  <div class="main-grid">
+    <!-- 共通環境設定（全幅） -->
+    <div class="global-section">
+      <div class="card card-static">
+        <h2>共通環境設定</h2>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="global_passport">ホロパスポート</label>
+          <select id="global_passport" onchange="onPassportChanged()">
+            <option value="1">加入中 (x2.0)</option>
+            <option value="0">未加入 (x1.0)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 左カラム：周回・計画グループ -->
+    <div class="column-group">
+      <!-- モード1: ライブ獲得Pt計算 -->
+      <details class="card" open>
+        <summary>1. ライブ獲得Pt計算（ソロ/マルチ）</summary>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="live_bonus">獲得ボーナス (%)</label>
+            <input type="number" id="live_bonus" value="0" min="0" step="1" oninput="calcLivePt()">
+          </div>
+          <div class="form-group">
+            <label for="live_song_search">楽曲検索・選択</label>
+            <input 
+              type="text" 
+              id="live_song_search" 
+              placeholder="曲名を入力して絞り込み" 
+              oninput="filterLiveSongs()"
+              style="margin-bottom: 6px;"
+            >
+            <select id="live_song_select" onchange="onLiveSongSelected()">
+              <!-- 動的生成 -->
+            </select>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="live_applied_music_input">適用曲長ボーナス手入力 (%)</label>
+              <input type="number" id="live_applied_music_input" value="0" min="0" step="1" oninput="onLiveAppliedInput()">
+            </div>
+            <div class="form-group">
+              <label for="live_boost">ブースト</label>
+              <select id="live_boost" onchange="onLiveBoostChanged()">
+                <option value="0">0炊き (x1.0)</option>
+                <option value="1" selected>1炊き (x8.0)</option>
+                <option value="2">2炊き (x16.0)</option>
+                <option value="3">3炊き (x24.0)</option>
+                <option value="4">4炊き (x30.0)</option>
+                <option value="5">5炊き (x37.0)</option>
+                <option value="6">6炊き (x42.0)</option>
+                <option value="7">7炊き (x46.0)</option>
+                <option value="8">8炊き (x50.0)</option>
+                <option value="9">9炊き (x53.0)</option>
+                <option value="10">10炊き (x56.0)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="live_sscore">ソロスコア</label>
+              <input type="number" id="live_sscore" value="0" min="0" step="1" oninput="calcLivePt()">
+            </div>
+            <div class="form-group">
+              <label for="live_mscore">マルチスコア (ソロ時0)</label>
+              <input type="number" id="live_mscore" value="0" min="0" step="1" oninput="calcLivePt()">
+            </div>
+          </div>
+          <div class="result-box">
+            獲得予定Pt:
+            <div class="result-val" id="live_result_pt">- Pt</div>
+          </div>
+          <button type="button" class="btn-sub" style="width: 100%; margin-top: 12px;" onclick="runSimulation()">▼ この設定で周回シミュを計算</button>
+        </div>
+      </details>
+
+      <!-- モード2: 周回シミュレーター -->
+      <details class="card" id="mode4_details" open>
+        <summary>2. 周回数・時間・石消費シミュレーター</summary>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group">
+              <label for="sim_now_pt">現在のPt</label>
+              <input type="number" id="sim_now_pt" value="0" min="0" step="1">
+            </div>
+            <div class="form-group">
+              <label for="sim_goal_pt">目標Pt</label>
+              <input type="number" id="sim_goal_pt" value="1000000" min="1" step="1">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="sim_owned_boost">所持ブースト (ドリンク・自然回復分など)</label>
+            <input type="number" id="sim_owned_boost" value="0" min="0" step="1" placeholder="所持しているブースト数を入力">
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="sim_song_time">1曲の長さ (秒)</label>
+              <input type="number" id="sim_song_time" value="166" min="1" step="1" title="曲選択時に自動反映されます">
+            </div>
+            <div class="form-group">
+              <label for="sim_wait_time">待機時間等 (秒)</label>
+              <input type="number" id="sim_wait_time" value="75" min="0" step="1">
+            </div>
+          </div>
+          <button type="button" onclick="runSimulation()">シミュレーション実行</button>
+          
+          <div id="sim_result_content">
+            <div class="result-box" style="text-align: center; font-size: 0.9rem; color: var(--muted);">
+              上の「▼ この設定で周回シミュを計算」を押すか、<br>実行ボタンを押してください。
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- 右カラム：着地・微調整グループ -->
+    <div class="column-group">
+      <!-- モード3: ソロ目標Pt逆算 -->
+      <details class="card" open>
+        <summary>3. 目標Ptからソロスコア逆算</summary>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="rev_bonus">獲得ボーナス (%)</label>
+            <input type="number" id="rev_bonus" value="0" min="0" step="1" oninput="updateRevMinPt()">
+          </div>
+          <div class="form-group">
+            <label for="rev_song_search">楽曲検索・選択</label>
+            <input 
+              type="text" 
+              id="rev_song_search" 
+              placeholder="曲名を入力して絞り込み" 
+              oninput="filterRevSongs()"
+              style="margin-bottom: 6px;"
+            >
+            <select id="rev_song_select" onchange="onRevSongSelected()">
+              <!-- 動的生成 -->
+            </select>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="rev_applied_music_input">適用曲長ボーナス手入力 (%)</label>
+              <input type="number" id="rev_applied_music_input" value="0" min="0" step="1" oninput="onRevAppliedInput()">
+            </div>
+            <div class="form-group">
+              <label for="rev_boost">ブースト</label>
+              <select id="rev_boost" onchange="onRevBoostChanged()">
+                <option value="0">0炊き (x1.0)</option>
+                <option value="1" selected>1炊き (x8.0)</option>
+                <option value="2">2炊き (x16.0)</option>
+                <option value="3">3炊き (x24.0)</option>
+                <option value="4">4炊き (x30.0)</option>
+                <option value="5">5炊き (x37.0)</option>
+                <option value="6">6炊き (x42.0)</option>
+                <option value="7">7炊き (x46.0)</option>
+                <option value="8">8炊き (x50.0)</option>
+                <option value="9">9炊き (x53.0)</option>
+                <option value="10">10炊き (x56.0)</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="rev_target_pt">狙うPt</label>
+              <input type="number" id="rev_target_pt" value="10000" min="1" step="1">
+            </div>
+            <div class="form-group">
+              <label for="rev_min_pt">最小Pt（スコア0時）</label>
+              <input type="text" id="rev_min_pt" value="-" readonly>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button type="button" style="flex: 2.2;" onclick="findTargetScore()">スコア範囲を探索</button>
+            <button type="button" class="btn-sub" style="flex: 1.6;" onclick="findSmallestOddPt()">最小奇数</button>
+            <button type="button" class="btn-sub" style="flex: 0.8;" onclick="stepOddPt(-1)" title="前の奇数">▽</button>
+            <button type="button" class="btn-sub" style="flex: 0.8;" onclick="stepOddPt(1)" title="次の奇数">△</button>
+          </div>
+          <div class="result-box" id="rev_result_box">
+            探索結果:
+            <div class="result-val" id="rev_result_score">-</div>
+          </div>
+        </div>
+      </details>
+
+      <!-- モード3: ミニゲームDP着地探索 -->
+      <details class="card" open>
+        <summary>4. ホッピン・ロープPt調整</summary>
+        <div class="card-body">
+          <div class="row">
+            <div class="form-group">
+              <label for="dp_current_pt">現在のPt</label>
+              <input type="number" id="dp_current_pt" value="0" min="0" step="1">
+            </div>
+            <div class="form-group">
+              <label for="dp_final_pt">目標着地Pt</label>
+              <input type="number" id="dp_final_pt" value="0" min="0" step="1">
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label for="dp_bonus_num">ボーナスキャラ枚数</label>
+              <select id="dp_bonus_num">
+                <option value="0" selected>0枚 (+0%)</option>
+                <option value="1">1枚 (+20%)</option>
+                <option value="2">2枚 (+40%)</option>
+                <option value="3">3枚 (+60%)</option>
+                <option value="4">4枚 (+80%)</option>
+                <option value="5">5枚 (+100%)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="dp_event_bonus">イベント特効ボーナス (%)</label>
+              <input type="number" id="dp_event_bonus" value="0" min="0" step="1" placeholder="例: 50">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dp_max_jumps">確実に飛べる自信のある回数</label>
+            <input type="number" id="dp_max_jumps" value="10" min="0" max="100" step="1">
+          </div>
+          <button type="button" style="width: 100%; margin-top: 6px;" onclick="solveMinigameDP()">最短着地手順を算出</button>
+          <div class="result-box" id="dp_result_box">
+            着地プラン:
+            <div id="dp_result_content" style="margin-top: 4px;">-</div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script src="songs.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
