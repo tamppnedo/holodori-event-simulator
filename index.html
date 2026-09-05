@@ -101,9 +101,45 @@
 
       <!-- モード2: 周回シミュレーター -->
       <details class="card" id="mode4_details" open>
-        <summary>2. 周回数・時間・石消費シミュレーター</summary>
+        <summary>4. 周回数・時間・石消費シミュレーター</summary>
         <div class="card-body">
-          <p class="section-desc">モード1の設定をベースに、各ブースト炊き数ごとの周回数・追加消費石（所持ブースト差引後）・実働時間を一括比較します。</p>
+          <p class="section-desc">目標までの周回数・追加消費石・実働時間を一括比較します。モード1の設定連携またはリザルトPtの直接入力から試算可能です。</p>
+          
+          <!-- 入力方式切り替えタブ -->
+          <div class="form-group">
+            <label>入力方式</label>
+            <div class="btn-group" style="margin-top: 0;">
+              <button type="button" id="tab_sync" style="flex: 1;" onclick="setSimMode('sync')">1の設定から引き継ぐ</button>
+              <button type="button" id="tab_manual" class="btn-sub" style="flex: 1;" onclick="setSimMode('manual')">1周Ptを直接手入力</button>
+            </div>
+          </div>
+
+          <!-- 直接入力用フィールド（初期非表示） -->
+          <div id="sim_manual_fields" style="display: none; background: #f8fafc; padding: 10px; border-radius: 4px; margin-bottom: 12px; border: 1px solid var(--border);">
+            <div class="row">
+              <div class="form-group">
+                <label for="sim_manual_pt">リザルト獲得Pt</label>
+                <input type="number" id="sim_manual_pt" value="25000" min="1" step="1" placeholder="例: 25000">
+              </div>
+              <div class="form-group">
+                <label for="sim_manual_boost">その時のブースト</label>
+                <select id="sim_manual_boost">
+                  <option value="0">0炊き (x1.0)</option>
+                  <option value="1" selected>1炊き (x8.0)</option>
+                  <option value="2">2炊き (x16.0)</option>
+                  <option value="3">3炊き (x24.0)</option>
+                  <option value="4">4炊き (x30.0)</option>
+                  <option value="5">5炊き (x37.0)</option>
+                  <option value="6">6炊き (x42.0)</option>
+                  <option value="7">7炊き (x46.0)</option>
+                  <option value="8">8炊き (x50.0)</option>
+                  <option value="9">9炊き (x53.0)</option>
+                  <option value="10">10炊き (x56.0)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="row">
             <div class="form-group">
               <label for="sim_now_pt">現在のPt</label>
@@ -128,11 +164,11 @@
               <input type="number" id="sim_wait_time" value="75" min="0" step="1">
             </div>
           </div>
-          <button type="button" onclick="runSimulation()">シミュレーション実行</button>
+          <button type="button" style="width: 100%; margin-top: 6px;" onclick="runSimulation()">シミュレーション実行</button>
           
           <div id="sim_result_content">
             <div class="result-box" style="text-align: center; font-size: 0.9rem; color: var(--muted);">
-              上の「▼ この設定で周回シミュを計算」を押すか、<br>実行ボタンを押してください。
+              条件を入力して実行ボタンを押してください。
             </div>
           </div>
         </div>
@@ -212,7 +248,7 @@
       <details class="card" open>
         <summary>4. ホッピン・ロープPt調整</summary>
         <div class="card-body">
-          <p class="section-desc">目標着地Ptまでの残差分を、ホッピン・ロープ（ブースト炊き数とジャンプ数）の最小プレイ回数でピッタリ埋める手順を動的計画法で探索します。<br>目標Ptと現在のPtの差が100,000pt以内の時に計算できます。</p>
+          <p class="section-desc">目標着地Ptまでの残差分を、ホッピン・ロープ（ブースト炊き数とジャンプ数）の最小プレイ回数でピッタリ埋める手順を動的計画法で探索します。<br>現在は目標Ptと現在のPtの差が100,000pt以内の時に計算できます。</p>
           <div class="row">
             <div class="form-group">
               <label for="dp_current_pt">現在のPt</label>

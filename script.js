@@ -109,23 +109,28 @@ function onLiveAppliedInput() {
   calcLivePt();
 }
 
+let currentSimInputMode = "sync"; // "sync" または "manual"
+
+function setSimMode(mode) {
+  currentSimInputMode = mode;
+  const tabSync = document.getElementById("tab_sync");
+  const tabManual = document.getElementById("tab_manual");
+  const manualFields = document.getElementById("sim_manual_fields");
+
+  if (mode === "sync") {
+    tabSync.className = "";
+    tabManual.className = "btn-sub";
+    manualFields.style.display = "none";
+  } else {
+    tabSync.className = "btn-sub";
+    tabManual.className = "";
+    manualFields.style.display = "block";
+  }
+}
+
 // ---------------- モード4: 周回シミュレーター ----------------
 function runSimulation() {
   document.getElementById("mode4_details").open = true;
-
-  const sScore = parseFloat(document.getElementById("live_sscore").value) || 0;
-  const mScore = parseFloat(document.getElementById("live_mscore").value) || 0;
-  const bonusVal = parseFloat(document.getElementById("live_bonus").value) || 0;
-  const passMult = getPassMultiplier();
-
-  let baseBonusForSim = 0;
-  if (liveBaseBonus !== null) {
-    baseBonusForSim = liveBaseBonus;
-  } else {
-    const currentBoost = parseInt(document.getElementById("live_boost").value, 10);
-    const manualApplied = parseFloat(document.getElementById("live_applied_music_input").value) || 0;
-    baseBonusForSim = manualApplied / MUSICS[currentBoost];
-  }
 
   const nowPt = parseInt(document.getElementById("sim_now_pt").value, 10) || 0;
   const goalPt = parseInt(document.getElementById("sim_goal_pt").value, 10) || 0;
@@ -140,6 +145,51 @@ function runSimulation() {
     document.getElementById("sim_result_content").innerHTML = 
       '<div class="result-box"><span class="result-val">すでに目標を達成しています。</span></div>';
     return;
+  }
+
+  // 0〜10炊きの各Ptを格納する配列
+  const ptList = new Array(11).fill(0);
+
+  if (currentSimInputMode === "sync") {
+    // 方式A: モード1の設定から厳密計算
+    const sScore = parseFloat(document.getElementById("live_sscore").value) || 0;
+    const mScore = parseFloat(document.getElementById("live_mscore").value) || 0;
+    const bonusVal = parseFloat(document.getElementById("live_bonus").value) || 0;
+    const passMult = getPassMultiplier();
+
+    let baseBonusForSim = 0;
+    if (liveBaseBonus !== null) {
+      baseBonusForSim = liveBaseBonus;
+    } else {
+      const currentBoost = parseInt(document.getElementById("live_boost").value, 10);
+      const manualApplied = parseFloat(document.getElementById("live_applied_music_input").value) || 0;
+      baseBonusForSim = manualApplied / MUSICS[currentBoost];
+    }
+
+    for (let b = 0; b <= 10; b++) {
+      let applied = Math.round(baseBonusForSim * MUSICS[b]);
+      ptList[b] = calcLivePtCore(sScore, mScore, b, applied, bonusVal, passMult);
+    }
+  } else {
+    // 方式B: 1周Ptを直接入力して逆算スケーリング
+    const manualPt = parseFloat(document.getElementById("sim_manual_pt").value) || 0;
+    const manualBoost = parseInt(document.getElementById("sim_manual_boost").value, 10);
+
+    if (manualPt <= 0) {
+      document.getElementById("sim_result_content").innerHTML = 
+        '<div class="result-box"><span class="error-text">リザルト獲得Ptを正しく入力してください。</span></div>';
+      return;
+    }
+
+    // 選択された曲長ボーナス基礎（未選択時は0%基準）
+    const songBaseBonus = liveBaseBonus !== null ? liveBaseBonus : 0;
+    const currentMusicRate = 1.0 + Math.round(songBaseBonus * MUSICS[manualBoost]) / 100.0;
+    const baseUnitPt = manualPt / (BOOSTS[manualBoost] * currentMusicRate);
+
+    for (let b = 0; b <= 10; b++) {
+      let musicRate = 1.0 + Math.round(songBaseBonus * MUSICS[b]) / 100.0;
+      ptList[b] = Math.ceil(baseUnitPt * BOOSTS[b] * musicRate);
+    }
   }
 
   let html = `
@@ -158,14 +208,11 @@ function runSimulation() {
   `;
 
   for (let b = 0; b <= 10; b++) {
-    let applied = Math.round(baseBonusForSim * MUSICS[b]);
-    let pt = calcLivePtCore(sScore, mScore, b, applied, bonusVal, passMult);
-    
+    let pt = ptList[b];
     if (pt <= 0) continue;
 
     let laps = Math.ceil(remaining / pt);
     let totalBoost = laps * b;
-    
     let neededBoost = Math.max(0, totalBoost - ownedBoost);
     let neededStones = neededBoost * 10;
     
@@ -174,12 +221,7 @@ function runSimulation() {
     let m = Math.floor((totalTime % 3600) / 60);
     let s = totalTime % 60;
     
-    let timeStr = "";
-    if (h > 0) {
-      timeStr = `${h}h ${m.toString().padStart(2, '0')}m`;
-    } else {
-      timeStr = `${m}m ${s.toString().padStart(2, '0')}s`;
-    }
+    let timeStr = h > 0 ? `${h}h ${m.toString().padStart(2, '0')}m` : `${m}m ${s.toString().padStart(2, '0')}s`;
 
     html += `
       <tr>
