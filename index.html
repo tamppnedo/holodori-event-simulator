@@ -11,11 +11,20 @@
 <div class="container">
   <h1>ホロドリ イベント総合計算＆Pt調整シミュレーター</h1>
 
+  <div class="card card-static intro-card">
+    <p class="intro-lead">イベント周回計画と最終ポイント調整（着地）を行える計算ツールです。</p>
+    <ul class="intro-list">
+      <li><strong>  周回計画：</strong>普段の周回による獲得Ptの確認や、目標Pt到達に必要な周回数・実働時間・消費石の試算を行えます。</li>
+      <li><strong>  Pt調整 ：</strong>目標ぴったりで終わらせるためのソロスコア調整（奇数Pt調整）や、ミニゲームによる最短着地手順の算出を行えます。</li>
+    </ul>
+  </div>
+
   <div class="main-grid">
     <!-- 共通環境設定（全幅） -->
     <div class="global-section">
       <div class="card card-static">
         <h2>共通環境設定</h2>
+
         <div class="form-group" style="margin-bottom: 0;">
           <label for="global_passport">ホロパスポート</label>
           <select id="global_passport" onchange="onPassportChanged()">
@@ -32,6 +41,7 @@
       <details class="card" open>
         <summary>1. ライブ獲得Pt計算（ソロ/マルチ）</summary>
         <div class="card-body">
+          <p class="section-desc">ボーナス・楽曲・ブースト・スコアからライブ1回あたりの獲得Ptを算出します。<br>設定した内容は下の周回シミュレーターへそのまま引き継げます。<br>※スコアUPが適用されたスコアを入力してください。<br>※現在曲調ボーナスは1%レベルで誤差が生じます。</p>
           <div class="form-group">
             <label for="live_bonus">獲得ボーナス (%)</label>
             <input type="number" id="live_bonus" value="0" min="0" step="1" oninput="calcLivePt()">
@@ -93,6 +103,7 @@
       <details class="card" id="mode4_details" open>
         <summary>2. 周回数・時間・石消費シミュレーター</summary>
         <div class="card-body">
+          <p class="section-desc">モード1の設定をベースに、各ブースト炊き数ごとの周回数・追加消費石（所持ブースト差引後）・実働時間を一括比較します。</p>
           <div class="row">
             <div class="form-group">
               <label for="sim_now_pt">現在のPt</label>
@@ -134,6 +145,7 @@
       <details class="card" open>
         <summary>3. 目標Ptからソロスコア逆算</summary>
         <div class="card-body">
+          <p class="section-desc">欲しいPtから必要なソロスコア範囲を逆算します。<br>「最小奇数」や「▽ / △」を使うと、偶奇調整に必要な奇数Ptとそのスコア帯を順次探せます。</p>
           <div class="form-group">
             <label for="rev_bonus">獲得ボーナス (%)</label>
             <input type="number" id="rev_bonus" value="0" min="0" step="1" oninput="updateRevMinPt()">
@@ -200,6 +212,7 @@
       <details class="card" open>
         <summary>4. ホッピン・ロープPt調整</summary>
         <div class="card-body">
+          <p class="section-desc">目標着地Ptまでの残差分を、ホッピン・ロープ（ブースト炊き数とジャンプ数）の最小プレイ回数でピッタリ埋める手順を動的計画法で探索します。<br>目標Ptと現在のPtの差が100,000pt以内の時に計算できます。</p>
           <div class="row">
             <div class="form-group">
               <label for="dp_current_pt">現在のPt</label>
