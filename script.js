@@ -148,7 +148,7 @@ function setSimMode(mode) {
   }
 }
 
-// ---------------- モード4: 周回シミュレーター ----------------
+// ---------------- モード2: 周回シミュレーター ----------------
 function runSimulation() {
   document.getElementById("mode4_details").open = true;
 
@@ -258,7 +258,7 @@ function runSimulation() {
   document.getElementById("sim_result_content").innerHTML = html;
 }
 
-// ---------------- モード2: ソロ目標Pt逆算 ----------------
+// ---------------- モード3: ソロ目標Pt逆算 ----------------
 function filterRevSongs() {
   populateSongSelect("rev_song_search", "rev_song_select");
 }
@@ -330,7 +330,7 @@ function findTargetScore() {
   let minScore = -1;
   let maxScore = -1;
 
-  for (let s = 0; s <= 3500000; s += 250) {
+  for (let s = 0; s <= 3500000; s += 1) {
     const earned = calcLivePtCore(s, 0, boost, appliedMusic, bonusVal, passMult);
     if (earned === targetPt) {
       if (minScore === -1) minScore = s;
@@ -358,7 +358,7 @@ function findSmallestOddPt() {
   let minScore = -1;
   let maxScore = -1;
 
-  for (let s = 0; s <= 3500000; s += 250) {
+  for (let s = 0; s <= 3500000; s += 1) {
     const earned = calcLivePtCore(s, 0, boost, appliedMusic, bonusVal, passMult);
     if (earned % 2 !== 0) {
       if (foundOddPt === -1) {
@@ -393,7 +393,7 @@ function stepOddPt(direction) {
 
   const oddMap = new Map();
 
-  for (let s = 0; s <= 3500000; s += 250) {
+  for (let s = 0; s <= 3500000; s += 1) {
     const earned = calcLivePtCore(s, 0, boost, appliedMusic, bonusVal, passMult);
     if (earned % 2 !== 0) {
       if (!oddMap.has(earned)) {
@@ -438,7 +438,7 @@ function stepOddPt(direction) {
   resultEl.textContent = `${nextOdd.toLocaleString()} Pt : ${data.minScore.toLocaleString()} 点 〜 ${data.maxScore.toLocaleString()} 点`;
 }
 
-// ---------------- モード3: ミニゲームDP ----------------
+// ---------------- モード4: ミニゲームDP ----------------
 function calcMinigamePtCore(jumps, bIdx, totalBonusPercent, passMult) {
   const basePt = 45 + Math.ceil(jumps * 1.3);
   const midVal = Math.ceil(basePt * (1.0 + totalBonusPercent / 100.0));
@@ -465,7 +465,7 @@ function solveMinigameDP() {
   }
 
   const targetPt = finalPt - currentPt;
-  const MAX_TARGET = 100000;
+  const MAX_TARGET = 30000;
 
   if (targetPt > MAX_TARGET) {
     contentEl.innerHTML = `<span class="error-text">注意: 差分が ${targetPt.toLocaleString()} Pt あります。DP探索上限（${MAX_TARGET.toLocaleString()} Pt）以下までライブで詰めてください。</span>`;
