@@ -11,6 +11,21 @@ const EVENT_BONUS = [0.0, 20.0, 40.0, 60.0, 80.0, 100.0];
 let liveBaseBonus = null;
 let revBaseBonus = null;
 
+// HTML特殊文字のエスケープ関数
+function escapeHtml(str) {
+  if (typeof str !== 'string') return str;
+  return str.replace(/[&<>'"]/g, function(tag) {
+    const charsToReplace = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;'
+    };
+    return charsToReplace[tag] || tag;
+  });
+}
+
 function getPassMultiplier() {
   return document.getElementById("global_passport").value === "1" ? 2.0 : 1.0;
 }
@@ -53,6 +68,8 @@ function populateSongSelect(searchId, selectId) {
   const selectEl = document.getElementById(selectId);
 
   const filtered = songs.filter(song => song.title.toLowerCase().includes(query));
+
+  // セレクトボックスを初期化
   selectEl.innerHTML = "";
 
   const defaultOpt = document.createElement("option");
@@ -65,8 +82,11 @@ function populateSongSelect(searchId, selectId) {
     const opt = document.createElement("option");
     opt.value = baseBonus;
     opt.dataset.time = getSongSeconds(song.time);
+    
+    // textContent を通すことで悪意あるタグも安全なプレーンテキストとして描画
     const timeLabel = song.time ? `${song.time} / ` : "";
     opt.textContent = `${song.title} (${timeLabel}基礎+${baseBonus}%)`;
+    
     selectEl.appendChild(opt);
   });
 }

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
 <title>ホロドリ イベントシミュレーター</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -41,7 +42,7 @@
       <details class="card" open>
         <summary>1. ライブ獲得Pt計算（ソロ/マルチ）</summary>
         <div class="card-body">
-          <p class="section-desc">ボーナス・楽曲・ブースト・スコアからライブ1回あたりの獲得Ptを算出します。<br>設定した内容は下の周回シミュレーターへそのまま引き継げます。<br>※スコアUPが適用されたスコアを入力してください。<br>※現在曲調ボーナスは1%レベルで誤差が生じます。</p>
+          <p class="section-desc">ボーナス・楽曲・ブースト・スコアからライブ1回あたりの獲得Ptを算出します。<br>設定した内容は下の周回シミュレーターへそのまま引き継げます。<br>※スコアUPが適用されたスコアを入力してください。<br>※現在曲長ボーナスは1%レベルで誤差が生じます。</p>
           <div class="form-group">
             <label for="live_bonus">獲得ボーナス (%)</label>
             <input type="number" id="live_bonus" value="0" min="0" step="1" oninput="calcLivePt()">
