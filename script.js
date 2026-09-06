@@ -152,11 +152,11 @@ function setSimMode(mode) {
 function runSimulation() {
   document.getElementById("mode4_details").open = true;
 
-  const nowPt = parseInt(document.getElementById("sim_now_pt").value, 10) || 0;
-  const goalPt = parseInt(document.getElementById("sim_goal_pt").value, 10) || 0;
-  const ownedBoost = parseInt(document.getElementById("sim_owned_boost").value, 10) || 0;
-  const songSec = parseInt(document.getElementById("sim_song_time").value, 10) || 166;
-  const waitSec = parseInt(document.getElementById("sim_wait_time").value, 10) || 75;
+  const nowPt = Math.max(0, parseInt(document.getElementById("sim_now_pt").value, 10) || 0);
+  const goalPt = Math.max(0, parseInt(document.getElementById("sim_goal_pt").value, 10) || 0);
+  const ownedBoost = Math.max(0, parseInt(document.getElementById("sim_owned_boost").value, 10) || 0);
+  const songSec = Math.max(1, parseInt(document.getElementById("sim_song_time").value, 10) || 166);
+  const waitSec = Math.max(0, parseInt(document.getElementById("sim_wait_time").value, 10) || 75);
 
   const remaining = goalPt - nowPt;
   const totalTimePerLap = songSec + waitSec;
@@ -167,22 +167,20 @@ function runSimulation() {
     return;
   }
 
-  // 0〜10炊きの各Ptを格納する配列
   const ptList = new Array(11).fill(0);
 
   if (currentSimInputMode === "sync") {
-    // 方式A: モード1の設定から厳密計算
-    const sScore = parseFloat(document.getElementById("live_sscore").value) || 0;
-    const mScore = parseFloat(document.getElementById("live_mscore").value) || 0;
-    const bonusVal = parseFloat(document.getElementById("live_bonus").value) || 0;
+    const sScore = Math.max(0, parseFloat(document.getElementById("live_sscore").value) || 0);
+    const mScore = Math.max(0, parseFloat(document.getElementById("live_mscore").value) || 0);
+    const bonusVal = Math.max(0, parseFloat(document.getElementById("live_bonus").value) || 0);
     const passMult = getPassMultiplier();
 
     let baseBonusForSim = 0;
     if (liveBaseBonus !== null) {
-      baseBonusForSim = liveBaseBonus;
+      baseBonusForSim = Math.max(0, liveBaseBonus);
     } else {
       const currentBoost = parseInt(document.getElementById("live_boost").value, 10);
-      const manualApplied = parseFloat(document.getElementById("live_applied_music_input").value) || 0;
+      const manualApplied = Math.max(0, parseFloat(document.getElementById("live_applied_music_input").value) || 0);
       baseBonusForSim = manualApplied / MUSICS[currentBoost];
     }
 
@@ -191,8 +189,7 @@ function runSimulation() {
       ptList[b] = calcLivePtCore(sScore, mScore, b, applied, bonusVal, passMult);
     }
   } else {
-    // 方式B: 1周Ptを直接入力して逆算スケーリング
-    const manualPt = parseFloat(document.getElementById("sim_manual_pt").value) || 0;
+    const manualPt = Math.max(0, parseFloat(document.getElementById("sim_manual_pt").value) || 0);
     const manualBoost = parseInt(document.getElementById("sim_manual_boost").value, 10);
 
     if (manualPt <= 0) {
@@ -201,8 +198,7 @@ function runSimulation() {
       return;
     }
 
-    // 選択された曲長ボーナス基礎（未選択時は0%基準）
-    const songBaseBonus = liveBaseBonus !== null ? liveBaseBonus : 0;
+    const songBaseBonus = liveBaseBonus !== null ? Math.max(0, liveBaseBonus) : 0;
     const currentMusicRate = 1.0 + Math.round(songBaseBonus * MUSICS[manualBoost]) / 100.0;
     const baseUnitPt = manualPt / (BOOSTS[manualBoost] * currentMusicRate);
 
@@ -212,6 +208,7 @@ function runSimulation() {
     }
   }
 
+  // --- 以下、テーブル生成処理 ---
   let html = `
     <table class="sim-table">
       <thead>
@@ -293,8 +290,8 @@ function onRevAppliedInput() {
 
 function updateRevMinPt() {
   const boost = parseInt(document.getElementById("rev_boost").value, 10);
-  const bonusVal = parseFloat(document.getElementById("rev_bonus").value) || 0;
-  const appliedMusic = parseFloat(document.getElementById("rev_applied_music_input").value) || 0;
+  const bonusVal = Math.max(0, parseFloat(document.getElementById("rev_bonus").value) || 0);
+  const appliedMusic = Math.max(0, parseFloat(document.getElementById("rev_applied_music_input").value) || 0);
   const passMult = getPassMultiplier();
 
   const minPt = calcLivePtCore(0, 0, boost, appliedMusic, bonusVal, passMult);
@@ -310,10 +307,10 @@ function calcLivePtCore(sScore, mScore, boost, appliedMusicBonus, bonusVal, pass
 
 function calcLivePt() {
   const boost = parseInt(document.getElementById("live_boost").value, 10);
-  const sScore = parseFloat(document.getElementById("live_sscore").value) || 0;
-  const mScore = parseFloat(document.getElementById("live_mscore").value) || 0;
-  const bonusVal = parseFloat(document.getElementById("live_bonus").value) || 0;
-  const appliedMusic = parseFloat(document.getElementById("live_applied_music_input").value) || 0;
+  const sScore = Math.max(0, parseFloat(document.getElementById("live_sscore").value) || 0);
+  const mScore = Math.max(0, parseFloat(document.getElementById("live_mscore").value) || 0);
+  const bonusVal = Math.max(0, parseFloat(document.getElementById("live_bonus").value) || 0);
+  const appliedMusic = Math.max(0, parseFloat(document.getElementById("live_applied_music_input").value) || 0);
   const passMult = getPassMultiplier();
 
   const pt = calcLivePtCore(sScore, mScore, boost, appliedMusic, bonusVal, passMult);
@@ -322,15 +319,15 @@ function calcLivePt() {
 
 function findTargetScore() {
   const boost = parseInt(document.getElementById("rev_boost").value, 10);
-  const targetPt = parseInt(document.getElementById("rev_target_pt").value, 10);
-  const bonusVal = parseFloat(document.getElementById("rev_bonus").value) || 0;
-  const appliedMusic = parseFloat(document.getElementById("rev_applied_music_input").value) || 0;
+  const targetPt = Math.max(0, parseInt(document.getElementById("rev_target_pt").value, 10) || 0);
+  const bonusVal = Math.max(0, parseFloat(document.getElementById("rev_bonus").value) || 0);
+  const appliedMusic = Math.max(0, parseFloat(document.getElementById("rev_applied_music_input").value) || 0);
   const passMult = getPassMultiplier();
 
   let minScore = -1;
   let maxScore = -1;
 
-  for (let s = 0; s <= 3500000; s += 1) {
+  for (let s = 0; s <= 3500000; s += 250) {
     const earned = calcLivePtCore(s, 0, boost, appliedMusic, bonusVal, passMult);
     if (earned === targetPt) {
       if (minScore === -1) minScore = s;
@@ -350,15 +347,15 @@ function findTargetScore() {
 
 function findSmallestOddPt() {
   const boost = parseInt(document.getElementById("rev_boost").value, 10);
-  const bonusVal = parseFloat(document.getElementById("rev_bonus").value) || 0;
-  const appliedMusic = parseFloat(document.getElementById("rev_applied_music_input").value) || 0;
+  const bonusVal = Math.max(0, parseFloat(document.getElementById("rev_bonus").value) || 0);
+  const appliedMusic = Math.max(0, parseFloat(document.getElementById("rev_applied_music_input").value) || 0);
   const passMult = getPassMultiplier();
 
   let foundOddPt = -1;
   let minScore = -1;
   let maxScore = -1;
 
-  for (let s = 0; s <= 3500000; s += 1) {
+  for (let s = 0; s <= 3500000; s += 100) {
     const earned = calcLivePtCore(s, 0, boost, appliedMusic, bonusVal, passMult);
     if (earned % 2 !== 0) {
       if (foundOddPt === -1) {
@@ -393,7 +390,7 @@ function stepOddPt(direction) {
 
   const oddMap = new Map();
 
-  for (let s = 0; s <= 3500000; s += 1) {
+  for (let s = 0; s <= 3500000; s += 100) {
     const earned = calcLivePtCore(s, 0, boost, appliedMusic, bonusVal, passMult);
     if (earned % 2 !== 0) {
       if (!oddMap.has(earned)) {
@@ -446,15 +443,15 @@ function calcMinigamePtCore(jumps, bIdx, totalBonusPercent, passMult) {
 }
 
 function solveMinigameDP() {
-  const currentPt = parseInt(document.getElementById("dp_current_pt").value, 10) || 0;
-  const finalPt = parseInt(document.getElementById("dp_final_pt").value, 10) || 0;
+  const currentPt = Math.max(0, parseInt(document.getElementById("dp_current_pt").value, 10) || 0);
+  const finalPt = Math.max(0, parseInt(document.getElementById("dp_final_pt").value, 10) || 0);
 
   const charaBonusIdx = parseInt(document.getElementById("dp_bonus_num").value, 10);
   const charaBonusPercent = EVENT_BONUS[charaBonusIdx];
-  const eventBonusPercent = parseFloat(document.getElementById("dp_event_bonus").value) || 0;
+  const eventBonusPercent = Math.max(0, parseFloat(document.getElementById("dp_event_bonus").value) || 0);
   const totalMinigameBonus = charaBonusPercent + eventBonusPercent;
 
-  const maxSafeJumps = parseInt(document.getElementById("dp_max_jumps").value, 10) || 0;
+  const maxSafeJumps = Math.max(0, Math.min(100, parseInt(document.getElementById("dp_max_jumps").value, 10) || 0));
   const passMult = getPassMultiplier();
 
   const contentEl = document.getElementById("dp_result_content");
@@ -535,6 +532,27 @@ function solveMinigameDP() {
 
   contentEl.innerHTML = html;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const numberInputs = document.querySelectorAll('input[type="number"]');
+
+  numberInputs.forEach(input => {
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "-" || e.key === "e" || e.key === "E") {
+        e.preventDefault();
+      }
+    });
+
+    input.addEventListener("input", () => {
+      if (input.value !== "" && parseFloat(input.value) < 0) {
+        input.value = 0;
+        // 入力値変更に伴う再計算イベントを手動発火
+        input.dispatchEvent(new Event("input"));
+      }
+    });
+  });
+});
 
 window.addEventListener("DOMContentLoaded", () => {
   filterLiveSongs();

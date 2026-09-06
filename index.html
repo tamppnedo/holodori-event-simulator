@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="data:,">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline';">
 <title>ホロドリ イベントシミュレーター</title>
@@ -104,7 +105,7 @@
       <details class="card" id="mode4_details" open>
         <summary>4. 周回数・時間・石消費シミュレーター</summary>
         <div class="card-body">
-          <p class="section-desc">目標までの周回数・追加消費石・実働時間を一括比較します。モード1の設定連携またはリザルトPtの直接入力から試算可能です。</p>
+          <p class="section-desc">目標までの周回数・追加消費石・実働時間を一括比較します。モード1の設定連携またはリザルトPtの直接入力から試算可能です。<br>※スコアは毎回変わるため、あくまでも目安としてご利用ください</p>
           
           <!-- 入力方式切り替えタブ -->
           <div class="form-group">
@@ -245,11 +246,11 @@
         </div>
       </details>
 
-      <!-- モード3: ミニゲームDP着地探索 -->
+      <!-- モード4: ミニゲームDP着地探索 -->
       <details class="card" open>
         <summary>4. ホッピン・ロープPt調整</summary>
         <div class="card-body">
-          <p class="section-desc">目標着地Ptまでの残差分を、ホッピン・ロープ（ブースト炊き数とジャンプ数）の最小プレイ回数でピッタリ埋める手順を動的計画法で探索します。<br>現在は目標Ptと現在のPtの差が30,000pt以内の時に計算できます。</p>
+          <p class="section-desc">目標着地Ptまでの残差分を、ホッピン・ロープ（ブースト炊き数とジャンプ数）の最小プレイ回数でピッタリ埋める手順を探します。<br>現在は目標Ptと現在のPtの差が30,000pt以内の時に計算できます。</p>
           <div class="row">
             <div class="form-group">
               <label for="dp_current_pt">現在のPt</label>
@@ -290,6 +291,11 @@
       </details>
     </div>
   </div>
+  <footer class="app-footer">
+    <p class="disclaimer-text">
+      本ツールは有志による非公式ファンメイドツールです。計算結果の正確性には万全を期していますが、ゲーム内仕様の変更や通信状況等による差異が生じる可能性があります。実際の着地・イベント周回はゲーム内の数値を必ずご確認の上、自己責任でご利用お願いします。
+      </p>
+      </footer>
 </div>
 
 <script src="songs.js"></script>
